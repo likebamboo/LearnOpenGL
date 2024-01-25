@@ -133,6 +133,7 @@ int main() {
 
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
+    glfwSwapInterval(1);
 
     const GLenum err = glewInit();
     if (GLEW_OK != err) {
@@ -178,13 +179,26 @@ int main() {
     const unsigned int shader = createShader(source.vertexShader, source.fragmentShader);
     glCall(glUseProgram(shader));
 
+    const int location = glGetUniformLocation(shader, "u_Color");
+    glAsset(location != -1);
+
+    float r = 0.0f;
+    float increment = 0.01f;
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window)) {
         /* Render here */
         glCall(glClear(GL_COLOR_BUFFER_BIT));
 
+        glCall(glUniform4f(location, r, 0.0f, 0.8f, 1.f));
         // glDrawArrays(GL_TRIANGLES, 0, 3);
         glCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
+
+        if (r > 1.0f) {
+            increment = -0.01f;
+        } else if (r < 0.0f) {
+            increment = 0.01f;
+        }
+        r += increment;
 
         /* Swap front and back buffers */
         glCall(glfwSwapBuffers(window));
