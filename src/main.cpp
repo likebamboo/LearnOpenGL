@@ -6,10 +6,42 @@
 #include <fstream>
 #include <sstream>
 
+#ifdef _MSC_VER
+#define DEBUG_BREAK __debugbreak()
+#else
+#define DEBUG_BREAK {}
+#endif
+
+#define glAsset(x) if (!(x)) DEBUG_BREAK
+
+#define glCall(x)  {\
+    glClearError();\
+    x;\
+    glAsset(glLogCall(#x, __FILE__, __LINE__));\
+    }
+
 struct ShaderSource {
     std::string vertexShader;
     std::string fragmentShader;
 };
+
+/**
+ * \brief 清理错误
+ */
+static void glClearError() {
+    while (GLenum err = glGetError());
+}
+
+/**
+ * \brief 检查错误
+ */
+static bool glLogCall(const char *function, const char *file, int line) {
+    while (const GLenum err = glGetError()) {
+        std::cout << "[OpenGL Err]: " << function << "(" << file << "#" << line << ")" << std::endl;
+        return false;
+    }
+    return true;
+}
 
 static ShaderSource parseShader(const std::string &filepath) {
     std::ifstream stream(filepath);
@@ -62,18 +94,19 @@ static unsigned int compileShader(const unsigned int type, const std::string &so
 }
 
 static unsigned int createShader(const std::string &vertexShader, const std::string &fragmetShader) {
-    const unsigned int program = glCreateProgram();
+    unsigned int program;
+    glCall(program = glCreateProgram());
     const unsigned int vs = compileShader(GL_VERTEX_SHADER, vertexShader);
     const unsigned int fs = compileShader(GL_FRAGMENT_SHADER, fragmetShader);
 
-    glAttachShader(program, vs);
-    glAttachShader(program, fs);
+    glCall(glAttachShader(program, vs));
+    glCall(glAttachShader(program, fs));
 
-    glLinkProgram(program);
-    glValidateProgram(program);
+    glCall(glLinkProgram(program));
+    glCall(glValidateProgram(program));
 
-    glDeleteShader(vs);
-    glDeleteShader(fs);
+    glCall(glDeleteShader(vs));
+    glCall(glDeleteShader(fs));
     return program;
 }
 
@@ -121,21 +154,21 @@ int main() {
         2, 3, 0
     };
     unsigned int vbo, vao, ibo;
-    glGenVertexArrays(1, &vao);
-    glGenBuffers(1, &vbo);
-    glGenBuffers(1, &ibo);
+    glCall(glGenVertexArrays(1, &vao));
+    glCall(glGenBuffers(1, &vbo));
+    glCall(glGenBuffers(1, &ibo));
 
     // Bind the Vertex Array Object first, then bind and set vertex buffer(s) and attribute pointer(s).
-    glBindVertexArray(vao);
+    glCall(glBindVertexArray(vao));
 
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(positions), positions, GL_STATIC_DRAW);
+    glCall(glBindBuffer(GL_ARRAY_BUFFER, vbo));
+    glCall(glBufferData(GL_ARRAY_BUFFER, sizeof(positions), positions, GL_STATIC_DRAW));
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    glCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo));
+    glCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW));
 
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, nullptr);
+    glCall(glEnableVertexAttribArray(0));
+    glCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, nullptr));
 
     const ShaderSource source = parseShader("../res/shaders/basic.shader");
     std::cout << "vertex shader:" << std::endl;
@@ -143,18 +176,18 @@ int main() {
     std::cout << "fragment shader:" << std::endl;
     std::cout << source.fragmentShader << std::endl;
     const unsigned int shader = createShader(source.vertexShader, source.fragmentShader);
-    glUseProgram(shader);
+    glCall(glUseProgram(shader));
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window)) {
         /* Render here */
-        glClear(GL_COLOR_BUFFER_BIT);
+        glCall(glClear(GL_COLOR_BUFFER_BIT));
 
         // glDrawArrays(GL_TRIANGLES, 0, 3);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+        glCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
 
         /* Swap front and back buffers */
-        glfwSwapBuffers(window);
+        glCall(glfwSwapBuffers(window));
 
         /* Poll for and process events */
         glfwPollEvents();
