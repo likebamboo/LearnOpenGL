@@ -6,42 +6,14 @@
 #include <fstream>
 #include <sstream>
 
-#ifdef _MSC_VER
-#define DEBUG_BREAK __debugbreak()
-#else
-#define DEBUG_BREAK {}
-#endif
-
-#define glAsset(x) if (!(x)) DEBUG_BREAK
-
-#define glCall(x) {\
-    glClearError();\
-    x;\
-    glAsset(glLogCall(#x, __FILE__, __LINE__));\
-    }
+#include "IndexBuffer.h"
+#include "Renderer.h"
+#include "VertexBuffer.h"
 
 struct ShaderSource {
     std::string vertexShader;
     std::string fragmentShader;
 };
-
-/**
- * \brief 清理错误
- */
-static void glClearError() {
-    while (GLenum err = glGetError());
-}
-
-/**
- * \brief 检查错误
- */
-static bool glLogCall(const char *function, const char *file, int line) {
-    while (const GLenum err = glGetError()) {
-        std::cout << "[OpenGL Err]: " << function << "(" << file << "#" << line << ")" << std::endl;
-        return false;
-    }
-    return true;
-}
 
 static ShaderSource parseShader(const std::string &filepath) {
     std::ifstream stream(filepath);
@@ -159,18 +131,12 @@ int main() {
     // Bind the Vertex Array Object first, then bind and set vertex buffer(s) and attribute pointer(s).
     glCall(glBindVertexArray(vao));
 
-    unsigned int vbo;
-    glCall(glGenBuffers(1, &vbo));
-    glCall(glBindBuffer(GL_ARRAY_BUFFER, vbo));
-    glCall(glBufferData(GL_ARRAY_BUFFER, sizeof(positions), positions, GL_STATIC_DRAW));
+    VertexBuffer vb(positions, 4 * 2 * sizeof(float));
 
     glCall(glEnableVertexAttribArray(0));
     glCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, nullptr));
 
-    unsigned int ibo;
-    glCall(glGenBuffers(1, &ibo));
-    glCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo));
-    glCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW));
+    IndexBuffer ib(indices, 6);
 
     const ShaderSource source = parseShader("../res/shaders/basic.shader");
     std::cout << "vertex shader:" << std::endl;
@@ -201,8 +167,7 @@ int main() {
         glCall(glUniform4f(location, r, 0.0f, 0.8f, 1.f));
 
         glCall(glBindVertexArray(vao));
-        glCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo));
-
+        ib.Bind();
         // glDrawArrays(GL_TRIANGLES, 0, 3);
         glCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
 
@@ -221,8 +186,6 @@ int main() {
     }
 
     glDeleteVertexArrays(1, &vao);
-    glDeleteBuffers(1, &vbo);
-    glDeleteBuffers(1, &ibo);
     glDeleteProgram(shader);
 
     glfwTerminate();
