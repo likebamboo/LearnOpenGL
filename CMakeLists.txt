@@ -30,7 +30,10 @@ add_executable(LearnOpenGL ${PROJECT_SOURCE_DIR}/src/Application.cpp
         src/VertexBuffer.cpp
         src/VertexBuffer.h
         src/IndexBuffer.cpp
-        src/IndexBuffer.h)
+        src/IndexBuffer.h
+        src/VertextArrayLayout.h
+        src/VertexArray.cpp
+        src/VertexArray.h)
 # glew 使用静态库, glfw 也使用静态库
 target_link_libraries(LearnOpenGL ${OPENGL_LIBRARIES} glfw glew_s)
 target_compile_options(LearnOpenGL PRIVATE -DGLEW_STATIC)
