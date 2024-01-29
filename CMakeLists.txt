@@ -35,7 +35,11 @@ add_executable(LearnOpenGL ${PROJECT_SOURCE_DIR}/src/Application.cpp
         src/VertexArray.cpp
         src/VertexArray.h
         src/Shader.cpp
-        src/Shader.h)
+        src/Shader.h
+        src/vendor/stb_image/stb_image.h
+        src/vendor/stb_image/stb_image.cpp
+        src/Texture.cpp
+        src/Texture.h)
 # glew 使用静态库, glfw 也使用静态库
 target_link_libraries(LearnOpenGL ${OPENGL_LIBRARIES} glfw glew_s)
 target_compile_options(LearnOpenGL PRIVATE -DGLEW_STATIC)
