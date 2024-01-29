@@ -5,6 +5,9 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
+#include "IndexBuffer.h"
+#include "Shader.h"
+#include "VertexArray.h"
 #include "GL/glew.h"
 
 #ifdef _MSC_VER
@@ -31,5 +34,12 @@ void glClearError();
  */
 bool glLogCall(const char *function, const char *file, int line);
 
+
+class Renderer {
+public:
+    void Clear() const;
+
+    void Draw(const VertexArray &va, const IndexBuffer &ib, const Shader &shader) const;
+};
 
 #endif //RENDERER_H
