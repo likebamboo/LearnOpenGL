@@ -6,6 +6,8 @@
 #define SHADER_H
 #include <string>
 
+#include <glm/glm.hpp>
+
 struct ShaderSource {
     std::string vertexShader;
     std::string fragmentShader;
@@ -39,6 +41,8 @@ public:
     void SetUniform1f(const std::string &name, float value);
 
     void SetUniform4f(const std::string &name, float v0, float v1, float v2, float v3);
+
+    void SetUniformMat4f(const std::string &name, const glm::mat4& matrix);
 };
 
 
