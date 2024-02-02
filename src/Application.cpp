@@ -50,10 +50,10 @@ int main() {
     std::cout << "oepngl version: " << major << "." << minor << std::endl;
 
     constexpr float positions[] = {
-        -0.5f, -0.5f, 0.f, 0.f, // Bottom Left
-        0.5f, -0.5f, 1.f, 0.f, // Bottom Right
-        0.5f, 0.5f, 1.0f, 1.f, // Top Right
-        -0.5f, 0.5f, 0.0f, 1.0f, // Top Left
+        100.0f, 100.0f, 0.f, 0.f, // Bottom Left
+        200.0f, 100.0f, 1.f, 0.f, // Bottom Right
+        200.0f, 200.0f, 1.0f, 1.f, // Top Right
+        100.0f, 200.0f, 0.0f, 1.0f, // Top Left
     };
     constexpr unsigned int indices[] = {
         0, 1, 2,
@@ -76,7 +76,7 @@ int main() {
     shader.Bind();
     shader.SetUniform4f("u_Color", 0.8f, 0.0f, 0.8f, 1.f);
 
-    glm::mat4 proj = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, -1.0f, 1.0f);
+    glm::mat4 proj = glm::ortho(0.0f, 640.0f, 0.0f, 480.0f, -1.0f, 1.0f);
     shader.SetUniformMat4f("u_MVP", proj);
 
     Texture texture("../res/texture/ChernoLogo.png");
